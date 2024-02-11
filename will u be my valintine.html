@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <style>
+        body {
+            font-family: 'Great Vibes', cursive;
+            text-align: left;
+            margin: 0;
+            background-image: url("image background.jpg"); /* Default background image */
+            /* Replace 'image_background.jpg' with your default image file */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative; /* Added position:relative */
+        }
+
+        h1 {
+            font-size: 2em;
+            padding-top: 15%;
+            margin-bottom: 20px;
+            padding-left: 5%;
+            color: #ffffff;
+            ;
+        }
+
+        .btn-yes {
+            font-family: 'Great Vibes', cursive;
+            margin-left: 7%;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: darkblue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            position: relative; /* Added position:relative */
+            z-index: 3; /* Ensures button is above canvas */
+        }
+
+        .btn-no {
+            font-family: 'Great Vibes', cursive;
+            padding: 10px 20px;
+            margin-left: 7%;
+            font-size: 1em;
+            background-color: darkblue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.5s;
+            position: absolute;
+            z-index: 2; /* Ensure the button is above the canvas */
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            z-index: 1; /* Ensure the canvas is below other elements */
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1 id="Text title">Will You Be My Valentine?</h1>
+        <div>
+            <button class="btn-yes" onclick="startAnimation()">Yes</button>
+            <button id="btn" class="btn-no">No</button>
+        </div>
+        <canvas id="canvas"></canvas>
+
+        <script>
+            const button = document.getElementById('btn');
+            button.addEventListener('mouseover', function () {
+                button.style.left = `${Math.ceil(Math.random() * 90)}%`;
+                button.style.top = `${Math.ceil(Math.random() * 90)}%`;
+            });
+            button.addEventListener('click', function () {
+                alert('you clicked me')
+            })
+        </script>
+        <script>
+
+            function startAnimation() {
+                // Change background image
+                document.getElementById('Text title').innerText = "Thank you for being a wonderful friend. \n Happy Valentine's Day!";
+                document.querySelector('.btn-yes').remove(); /* Remove the 'Yes' button */
+            document.querySelector('.btn-no').remove(); 
+                // Trigger canvas animation
+                Draw();
+            }
+            let W = window.innerWidth;
+            let H = window.innerHeight;
+            const canvas = document.getElementById("canvas");
+            const context = canvas.getContext("2d");
+            const maxConfettis = 150;
+            const particles = [];
+
+            const possibleColors = [
+                "DodgerBlue",
+                "OliveDrab",
+                "Gold",
+                "Pink",
+                "SlateBlue",
+                "LightBlue",
+                "Gold",
+                "Violet",
+                "PaleGreen",
+                "SteelBlue",
+                "SandyBrown",
+                "Chocolate",
+                "Crimson"
+            ];
+
+            function randomFromTo(from, to) {
+                return Math.floor(Math.random() * (to - from + 1) + from);
+            }
+
+            function confettiParticle() {
+                this.x = Math.random() * W; // x
+                this.y = Math.random() * H - H; // y
+                this.r = randomFromTo(11, 33); // radius
+                this.d = Math.random() * maxConfettis + 11;
+                this.color =
+                    possibleColors[Math.floor(Math.random() * possibleColors.length)];
+                this.tilt = Math.floor(Math.random() * 33) - 11;
+                this.tiltAngleIncremental = Math.random() * 0.07 + 0.05;
+                this.tiltAngle = 0;
+
+                this.draw = function () {
+                    context.beginPath();
+                    context.lineWidth = this.r / 2;
+                    context.strokeStyle = this.color;
+                    context.moveTo(this.x + this.tilt + this.r / 3, this.y);
+                    context.lineTo(this.x + this.tilt, this.y + this.tilt + this.r / 5);
+                    return context.stroke();
+                };
+            }
+
+            function Draw() {
+                const results = [];
+
+                // Magical recursive functional love
+                requestAnimationFrame(Draw);
+
+                context.clearRect(0, 0, W, window.innerHeight);
+
+                for (var i = 0; i < maxConfettis; i++) {
+                    results.push(particles[i].draw());
+                }
+
+                let particle = {};
+                let remainingFlakes = 0;
+                for (var i = 0; i < maxConfettis; i++) {
+                    particle = particles[i];
+
+                    particle.tiltAngle += particle.tiltAngleIncremental;
+                    particle.y += (Math.cos(particle.d) + 3 + particle.r / 2) / 2;
+                    particle.tilt = Math.sin(particle.tiltAngle - i / 3) * 15;
+
+                    if (particle.y <= H) remainingFlakes++;
+
+                    // If a confetti has fluttered out of view,
+                    // bring it back to above the viewport and let if re-fall.
+                    if (particle.x > W + 30 || particle.x < -30 || particle.y > H) {
+                        particle.x = Math.random() * W;
+                        particle.y = -30;
+                        particle.tilt = Math.floor(Math.random() * 10) - 20;
+                    }
+                }
+
+                return results;
+            }
+
+            window.addEventListener(
+                "resize",
+                function () {
+                    W = window.innerWidth;
+                    H = window.innerHeight;
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                },
+                false
+            );
+
+            // Push new confetti objects to `particles[]`
+            for (var i = 0; i < maxConfettis; i++) {
+                particles.push(new confettiParticle());
+            }
+
+            // Initialize
+            canvas.width = W;
+            canvas.height = H;
+        </script>
+    </div>
+</body>
+
+</html>
